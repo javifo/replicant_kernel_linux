@@ -200,13 +200,13 @@
 
 		"IN1LP", "MICBIAS1",
 		"IN1LN", "MICBIAS1",
-		"MICBIAS1", "Main Mic",
+		"Main Mic", "MICBIAS1",
 
 		"IN1RP", "Sub Mic",
 		"IN1RN", "Sub Mic",
 
 		"IN2LP:VXRN", "MICBIAS2",
-		"MICBIAS2", "Headset Mic",
+		"Headset Mic", "MICBIAS2",
 
 		"IN2RN", "FM In",
 		"IN2RP:VXRP", "FM In";
