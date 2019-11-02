@@ -465,6 +465,9 @@ static int midas_late_probe(struct snd_soc_card *card) {
 	if (ret)
 		return ret;
 
+	/* To wakeup for earjack event in suspend mode */
+	enable_irq_wake(control->irq);
+
 	wakeup_source_init(&priv->jackdet_wake_lock,
 					"midas_jackdet");
 
