@@ -102,7 +102,7 @@ static const struct wm8958_micd_rate jackdet_rates[] = {
 	{ 44100 * 256, false, 7, 8 },
 };
 
-static void wm8958_micd_set_rate(struct snd_soc_component *component)
+void wm8958_micd_set_rate(struct snd_soc_component *component)
 {
 	struct wm8994_priv *wm8994 = snd_soc_component_get_drvdata(component);
 	struct wm8994 *control = wm8994->wm8994;
@@ -3982,6 +3982,8 @@ static irqreturn_t wm8994_temp_shut(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
+struct wm8994_priv *g_wm8994;
+
 static int wm8994_component_probe(struct snd_soc_component *component)
 {
 	struct snd_soc_dapm_context *dapm = snd_soc_component_get_dapm(component);
@@ -4366,6 +4368,8 @@ static int wm8994_component_probe(struct snd_soc_component *component)
 					ARRAY_SIZE(wm8958_intercon));
 		break;
 	}
+
+	g_wm8994 = wm8994;
 
 	return 0;
 

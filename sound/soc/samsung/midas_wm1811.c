@@ -12,10 +12,16 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
+#include <linux/pm.h>
 #include <linux/regulator/consumer.h>
 #include <sound/soc.h>
 #include <sound/soc-dapm.h>
 #include <sound/jack.h>
+
+#include <linux/mfd/wm8994/core.h>
+#include <linux/mfd/wm8994/registers.h>
+#include <linux/mfd/wm8994/pdata.h>
+#include <linux/mfd/wm8994/gpio.h>
 
 #include "i2s.h"
 #include "i2s-regs.h"
@@ -24,9 +30,14 @@
 #define XTAL_24MHZ_AP 24000000
 #define CODEC_CLK32K 32768
 #define CODEC_DEFAULT_SYNC_CLK 11289600
+#define WM1811_JACKDET_MODE_AUDIO        0x0180
+
+static struct device *g_dev;
+static struct snd_soc_card *g_card;
 
 struct midas_machine_priv {
-	struct snd_soc_codec *codec;
+	struct snd_soc_codec_conf *codec;
+	struct wakeup_source jackdet_wake_lock;
 	struct clk *codec_mclk1;
 	struct clk *codec_mclk2;
 	struct regulator *reg_mic_bias;
@@ -288,6 +299,92 @@ static const struct snd_soc_dapm_widget midas_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Sub Mic", midas_submic_bias),
 };
 
+extern struct wm8994_priv *g_wm8994;
+extern void wm8958_micd_set_rate(struct snd_soc_component *component);
+
+static void midas_mic_id(void *data, u16 status)
+{
+	struct midas_machine_priv *wm1811 = data;
+	struct wm8994_priv *wm8994 = g_wm8994; //snd_soc_codec_get_drvdata(wm1811->codec);
+	struct snd_soc_pcm_runtime *rtd = snd_soc_get_pcm_runtime(g_card,
+		g_card->dai_link[0].name);
+	struct snd_soc_component *component = rtd->codec_dai->component;
+
+	pr_err("%s: detected jack: status=%d\n", __func__, status);
+	__pm_wakeup_event(&wm1811->jackdet_wake_lock, 5 * 1000);
+
+	/* Either nothing present or just starting detection */
+	if (!(status & WM8958_MICD_STS)) {
+		if (!wm8994->jackdet) {
+			/* If nothing present then clear our statuses */
+			pr_err("%s: Detected open circuit\n", __func__);
+			wm8994->jack_mic = false;
+			wm8994->mic_detecting = true;
+
+			wm8958_micd_set_rate(component);
+
+			snd_soc_jack_report(wm8994->micdet[0].jack, 0,
+					    wm8994->btn_mask |
+					     SND_JACK_HEADSET);
+		}
+		/*ToDo*/
+		/*return;*/
+	}
+
+	/* If the measurement is showing a high impedence we've got a
+	 * microphone.
+	 */
+	if (wm8994->mic_detecting && (status & 0x400)) {
+		pr_err("%s: Detected microphone\n", __func__);
+
+		wm8994->mic_detecting = false;
+		wm8994->jack_mic = true;
+
+		wm8958_micd_set_rate(component);
+
+		snd_soc_jack_report(wm8994->micdet[0].jack, SND_JACK_HEADSET,
+				    SND_JACK_HEADSET);
+	}
+
+	if (wm8994->mic_detecting && status & 0x4) {
+		pr_err("%s: Detected headphone\n", __func__);
+		wm8994->mic_detecting = false;
+
+		wm8958_micd_set_rate(component);
+
+		snd_soc_jack_report(wm8994->micdet[0].jack, SND_JACK_HEADPHONE,
+				    SND_JACK_HEADSET);
+
+		/* If we have jackdet that will detect removal */
+		if (wm8994->jackdet) {
+			mutex_lock(&wm8994->accdet_lock);
+
+			snd_soc_component_update_bits(component, WM8958_MIC_DETECT_1,
+					    WM8958_MICD_ENA, 0);
+
+			if (wm8994->active_refcount) {
+				snd_soc_component_update_bits(component,
+					WM8994_ANTIPOP_2,
+					WM1811_JACKDET_MODE_MASK,
+					WM1811_JACKDET_MODE_AUDIO);
+			}
+
+			mutex_unlock(&wm8994->accdet_lock);
+#if 0
+			if (wm8994->wm8994->pdata.jd_ext_cap) {
+#endif
+				mutex_lock(&component->io_mutex);
+				snd_soc_dapm_disable_pin(&component->dapm,
+							 "MICBIAS2");
+				snd_soc_dapm_sync(&component->dapm);
+				mutex_unlock(&component->io_mutex);
+#if 0
+			}
+#endif
+		}
+	}
+}
+
 static struct snd_soc_jack midas_headset;
 
 static int midas_set_bias_level(struct snd_soc_card *card,
@@ -352,7 +449,10 @@ static int midas_late_probe(struct snd_soc_card *card) {
 	if (ret)
 		return ret;
 
-	wm8958_mic_detect(component, &midas_headset, NULL, NULL, NULL, NULL);
+	wakeup_source_init(&priv->jackdet_wake_lock,
+					"midas_jackdet");
+
+	wm8958_mic_detect(component, &midas_headset, NULL, NULL, midas_mic_id, priv);
 	return 0;
 }
 
@@ -442,9 +542,6 @@ static struct snd_soc_card midas_card = {
 	.set_bias_level = midas_set_bias_level,
 	.late_probe = midas_late_probe,
 };
-
-static struct device *g_dev;
-static struct snd_soc_card *g_card;
 
 static void card_register_fn(struct work_struct *work);
 
