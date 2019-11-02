@@ -194,7 +194,6 @@
 
 		"HDMI", "LINEOUT1N",
 		"HDMI", "LINEOUT1P",
-
 		"LINE", "LINEOUT2N",
 		"LINE", "LINEOUT2P",
 
@@ -207,6 +206,9 @@
 
 		"IN2LP:VXRN", "MICBIAS2",
 		"MICBIAS2", "Headset Mic",
+
+		"AIF1DAC1L", "S5P RP",
+		"AIF1DAC1R", "S5P RP",
 
 		"IN2RN", "FM In",
 		"IN2RP:VXRP", "FM In";

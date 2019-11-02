@@ -281,6 +281,7 @@ static const struct snd_kcontrol_new midas_controls[] = {
 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
 
 	SOC_DAPM_PIN_SWITCH("FM In"),
+	SOC_DAPM_PIN_SWITCH("S5P RP"),
 };
 
 static const struct snd_soc_dapm_widget midas_dapm_widgets[] = {
@@ -297,6 +298,7 @@ static const struct snd_soc_dapm_widget midas_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
 	SND_SOC_DAPM_MIC("Main Mic", midas_mic_bias),
 	SND_SOC_DAPM_MIC("Sub Mic", midas_submic_bias),
+	SND_SOC_DAPM_INPUT("S5P RP"),
 };
 
 extern struct wm8994_priv *g_wm8994;
@@ -450,6 +452,10 @@ static int midas_late_probe(struct snd_soc_card *card) {
 					ret);
 		pr_err("midas: %s: snd_soc_dapm_force_enable_pin AIF1CLK ret = %d\n", __func__, ret);
 	}
+
+	ret = snd_soc_dapm_disable_pin(&component->dapm, "S5P RP");
+	if (ret < 0)
+		dev_err(component->dev, "Failed to disable S5P RP: %d\n", ret);
 
 	ret = snd_soc_card_jack_new(card, "Headset",
 			SND_JACK_HEADSET | SND_JACK_MECHANICAL |
