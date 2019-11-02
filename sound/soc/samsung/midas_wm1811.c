@@ -415,6 +415,7 @@ static int midas_late_probe(struct snd_soc_card *card) {
 			card->dai_link[0].name);
 	struct snd_soc_component *component = rtd->codec_dai->component;
 	struct snd_soc_dai *aif1_dai = rtd->codec_dai;
+	struct wm8994 *control = dev_get_drvdata(component->dev->parent);
 	struct midas_machine_priv *priv = snd_soc_card_get_drvdata(card);
 	int ret;
 	unsigned int mclk_in;
@@ -439,6 +440,15 @@ static int midas_late_probe(struct snd_soc_card *card) {
 	if (ret < 0) {
 		dev_err(aif1_dai->dev, "Failed to set MCLK2: %d\n", ret);
 		return ret;
+	}
+
+	/* Force AIF1CLK on as it will be master for jack detection */
+	if (control->revision > 1) {
+		ret = snd_soc_dapm_force_enable_pin(&component->dapm, "AIF1CLK");
+		if (ret < 0)
+			dev_err(component->dev, "Failed to enable AIF1CLK: %d\n",
+					ret);
+		pr_err("midas: %s: snd_soc_dapm_force_enable_pin AIF1CLK ret = %d\n", __func__, ret);
 	}
 
 	ret = snd_soc_card_jack_new(card, "Headset",
