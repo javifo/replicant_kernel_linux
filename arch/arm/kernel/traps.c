@@ -242,6 +242,8 @@ static void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk)
 
 void show_stack(struct task_struct *tsk, unsigned long *sp)
 {
+	if (smp_processor_id() > 0)
+		return;
 	dump_backtrace(NULL, tsk);
 	barrier();
 }
