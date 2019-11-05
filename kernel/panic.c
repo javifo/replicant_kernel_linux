@@ -290,7 +290,7 @@ void panic(const char *fmt, ...)
 		panic_blink = no_blink;
 
 	reboot_mode = REBOOT_HARD;
-	emergency_restart();
+	kernel_halt();
 #ifdef __sparc__
 	{
 		extern int stop_a_enabled;
