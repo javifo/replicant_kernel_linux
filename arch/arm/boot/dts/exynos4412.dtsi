@@ -413,14 +413,6 @@
 			compatible = "operating-points-v2";
 			opp-shared;
 
-			opp-100000000 {
-				opp-hz = /bits/ 64 <100000000>;
-				opp-microvolt = <900000>;
-			};
-			opp-134000000 {
-				opp-hz = /bits/ 64 <134000000>;
-				opp-microvolt = <900000>;
-			};
 			opp-160000000 {
 				opp-hz = /bits/ 64 <160000000>;
 				opp-microvolt = <900000>;
@@ -440,12 +432,6 @@
 			compatible = "operating-points-v2";
 			opp-shared;
 
-			opp-100000000 {
-				opp-hz = /bits/ 64 <100000000>;
-			};
-			opp-134000000 {
-				opp-hz = /bits/ 64 <134000000>;
-			};
 			opp-160000000 {
 				opp-hz = /bits/ 64 <160000000>;
 			};
@@ -506,14 +492,6 @@
 			compatible = "operating-points-v2";
 			opp-shared;
 
-			opp-100000000 {
-				opp-hz = /bits/ 64 <100000000>;
-				opp-microvolt = <900000>;
-			};
-			opp-134000000 {
-				opp-hz = /bits/ 64 <134000000>;
-				opp-microvolt = <925000>;
-			};
 			opp-160000000 {
 				opp-hz = /bits/ 64 <160000000>;
 				opp-microvolt = <950000>;
