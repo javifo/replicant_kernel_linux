@@ -363,7 +363,7 @@ static int __init lima_init(void)
 {
 	return platform_driver_register(&lima_platform_driver);
 }
-module_init(lima_init);
+late_initcall(lima_init);
 
 static void __exit lima_exit(void)
 {
