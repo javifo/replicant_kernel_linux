@@ -92,6 +92,8 @@ static int exynos_drm_fbdev_update(struct drm_fb_helper *helper,
 
 	nr_pages = exynos_gem->size >> PAGE_SHIFT;
 
+	printk(KERN_ERR "%s: nr_pages(%d) exynos_gem size(%d)\n", __func__, nr_pages, exynos_gem->size);
+
 	exynos_gem->kvaddr = (void __iomem *) vmap(exynos_gem->pages, nr_pages,
 				VM_MAP, pgprot_writecombine(PAGE_KERNEL));
 	if (!exynos_gem->kvaddr) {

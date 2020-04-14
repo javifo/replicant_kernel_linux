@@ -2001,6 +2001,8 @@ int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
 	unsigned long end = addr + get_vm_area_size(area);
 	int err;
 
+	printk(KERN_ERR "%s: addr(0x%x) end(0x%x)\n", __func__, addr, end);
+
 	err = vmap_page_range(addr, end, prot, pages);
 
 	return err > 0 ? 0 : err;
