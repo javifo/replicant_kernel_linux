@@ -51,6 +51,9 @@
 #define MMS114_TYPE_TOUCHSCREEN		1
 #define MMS114_TYPE_TOUCHKEY		2
 
+/* Dummy pressure for Android */
+#define MMS114_DUMMY_PRESSURE 		128
+
 enum mms_type {
 	TYPE_MMS114	= 114,
 	TYPE_MMS152	= 152,
@@ -183,7 +186,18 @@ static void mms114_process_mt(struct mms114_data *data, struct mms114_touch *tou
 	if (touch->pressed) {
 		touchscreen_report_pos(input_dev, &data->props, x, y, true);
 		input_report_abs(input_dev, ABS_MT_TOUCH_MAJOR, touch->width);
+#if defined(CONFIG_ANDROID) && defined(CONFIG_ARCH_EXYNOS)
+		/* Android interpretes a touch with zero pressure as the end of
+		   a touch gesture, so send Androdi a dummy pressure when there
+		   is still a touch */
+		if (!touch->strength) {
+			input_report_abs(input_dev, ABS_MT_PRESSURE, MMS114_DUMMY_PRESSURE);
+		} else {
+			input_report_abs(input_dev, ABS_MT_PRESSURE, touch->strength);
+		}
+#else
 		input_report_abs(input_dev, ABS_MT_PRESSURE, touch->strength);
+#endif
 	}
 }
 
