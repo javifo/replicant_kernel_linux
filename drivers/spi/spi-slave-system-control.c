@@ -74,6 +74,7 @@ static void spi_slave_system_control_complete(void *arg)
 
 	case CMD_SUSPEND:
 		dev_info(&priv->spi->dev, "Suspending system...\n");
+		pr_err("%s: PM_SUSPEND_MEM\n", __func__);
 		pm_suspend(PM_SUSPEND_MEM);
 		break;
 

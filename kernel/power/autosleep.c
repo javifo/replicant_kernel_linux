@@ -28,6 +28,8 @@ static void try_to_suspend(struct work_struct *work)
 {
 	unsigned int initial_count, final_count;
 
+	pr_err("%s: \n", __func__);
+
 	if (!pm_get_wakeup_count(&initial_count, true))
 		goto out;
 
@@ -43,10 +45,13 @@ static void try_to_suspend(struct work_struct *work)
 		mutex_unlock(&autosleep_lock);
 		return;
 	}
-	if (autosleep_state >= PM_SUSPEND_MAX)
+	if (autosleep_state >= PM_SUSPEND_MAX) {
+		pr_err("%s: calling hibernate()\n", __func__);
 		hibernate();
-	else
+	} else {
+		pr_err("%s: calling pm_suspend(autosleep_state)\n", __func__);
 		pm_suspend(autosleep_state);
+	}
 
 	mutex_unlock(&autosleep_lock);
 

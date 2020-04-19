@@ -311,6 +311,7 @@ apm_ioctl(struct file *filp, u_int cmd, u_long arg)
 			 * Just invoke pm_suspend(), we'll handle it from
 			 * there via the notifier.
 			 */
+			pr_err("%s: calling pm_suspend(PM_SUSPEND_MEM)\n", __func__);
 			as->suspend_result = pm_suspend(PM_SUSPEND_MEM);
 		}
 
@@ -492,11 +493,13 @@ static int kapmd(void *arg)
 
 		case APM_USER_SUSPEND:
 		case APM_SYS_SUSPEND:
+			pr_err("%s: PM_SUSPEND_MEM\n", __func__);
 			pm_suspend(PM_SUSPEND_MEM);
 			break;
 
 		case APM_CRITICAL_SUSPEND:
 			atomic_inc(&userspace_notification_inhibit);
+			pr_err("%s: PM_SUSPEND_MEM\n", __func__);
 			pm_suspend(PM_SUSPEND_MEM);
 			atomic_dec(&userspace_notification_inhibit);
 			break;
