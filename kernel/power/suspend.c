@@ -167,12 +167,15 @@ void s2idle_wake(void)
 {
 	unsigned long flags;
 
+	pr_err("%s: s2iddle_state(%d)\n", __func__, s2idle_state);
 	raw_spin_lock_irqsave(&s2idle_lock, flags);
 	if (s2idle_state > S2IDLE_STATE_NONE) {
+		pr_err("%s: s2iddle_state > S2IDLE_STATE_NONE\n", __func__);
 		s2idle_state = S2IDLE_STATE_WAKE;
 		swake_up_one(&s2idle_wait_head);
 	}
 	raw_spin_unlock_irqrestore(&s2idle_lock, flags);
+	pr_err("%s:out\n", __func__);
 }
 EXPORT_SYMBOL_GPL(s2idle_wake);
 

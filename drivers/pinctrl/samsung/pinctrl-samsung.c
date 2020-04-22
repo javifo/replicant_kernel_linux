@@ -1163,12 +1163,12 @@ static int __maybe_unused samsung_pinctrl_suspend(struct device *dev)
 			/* Some banks have two config registers */
 			bank->pm_save[PINCFG_TYPE_NUM] =
 				readl(reg + offs[PINCFG_TYPE_FUNC] + 4);
-			pr_debug("Save %s @ %p (con %#010x %08x)\n",
+			pr_err("Save %s @ %p (con %#010x %08x)\n",
 				 bank->name, reg,
 				 bank->pm_save[PINCFG_TYPE_FUNC],
 				 bank->pm_save[PINCFG_TYPE_NUM]);
 		} else {
-			pr_debug("Save %s @ %p (con %#010x)\n", bank->name,
+			pr_err("Save %s @ %p (con %#010x)\n", bank->name,
 				 reg, bank->pm_save[PINCFG_TYPE_FUNC]);
 		}
 	}
@@ -1210,7 +1210,7 @@ static int __maybe_unused samsung_pinctrl_resume(struct device *dev)
 
 		if (widths[PINCFG_TYPE_FUNC] * bank->nr_pins > 32) {
 			/* Some banks have two config registers */
-			pr_debug("%s @ %p (con %#010x %08x => %#010x %08x)\n",
+			pr_err("%s @ %p (con %#010x %08x => %#010x %08x)\n",
 				 bank->name, reg,
 				 readl(reg + offs[PINCFG_TYPE_FUNC]),
 				 readl(reg + offs[PINCFG_TYPE_FUNC] + 4),
@@ -1219,7 +1219,7 @@ static int __maybe_unused samsung_pinctrl_resume(struct device *dev)
 			writel(bank->pm_save[PINCFG_TYPE_NUM],
 			       reg + offs[PINCFG_TYPE_FUNC] + 4);
 		} else {
-			pr_debug("%s @ %p (con %#010x => %#010x)\n", bank->name,
+			pr_err("%s @ %p (con %#010x => %#010x)\n", bank->name,
 				 reg, readl(reg + offs[PINCFG_TYPE_FUNC]),
 				 bank->pm_save[PINCFG_TYPE_FUNC]);
 		}
