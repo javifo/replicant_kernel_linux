@@ -3,6 +3,7 @@
  * Copyright (c) 2010 Broadcom Corporation
  */
 
+#include <linux/clk.h>
 #include <linux/types.h>
 #include <linux/atomic.h>
 #include <linux/kernel.h>
@@ -3946,6 +3947,11 @@ brcmf_sdio_probe_attach(struct brcmf_sdio *bus)
 		brcmf_err("Failed to get device parameters\n");
 		goto fail;
 	}
+
+	/* enable external 32khz clock, if present */
+	if (sdiodev->settings->clk)
+		clk_prepare_enable(sdiodev->settings->clk);
+
 	/* platform specific configuration:
 	 *   alignments must be at least 4 bytes for ADMA
 	 */
@@ -4438,6 +4444,10 @@ void brcmf_sdio_remove(struct brcmf_sdio *bus)
 			}
 			brcmf_chip_detach(bus->ci);
 		}
+
+		if (bus->sdiodev->settings->clk)
+			clk_disable_unprepare(bus->sdiodev->settings->clk);
+
 		if (bus->sdiodev->settings)
 			brcmf_release_module_param(bus->sdiodev->settings);
 
