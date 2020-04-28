@@ -131,7 +131,6 @@ void brcmf_dmi_probe(struct brcmf_mp_device *settings, u32 chip, u32 chiprev)
 
 		if (data->chip == chip && data->chiprev == chiprev) {
 			settings->board_type = data->board_type;
-			brcmf_info("board_type(%s)\n", settings->board_type);
 			return;
 		}
 	}
@@ -143,6 +142,5 @@ void brcmf_dmi_probe(struct brcmf_mp_device *settings, u32 chip, u32 chiprev)
 		snprintf(dmi_board_type, sizeof(dmi_board_type), "%s-%s",
 			 sys_vendor, product_name);
 		settings->board_type = dmi_board_type;
-		brcmf_info("board_type(%s)\n", settings->board_type);
 	}
 }

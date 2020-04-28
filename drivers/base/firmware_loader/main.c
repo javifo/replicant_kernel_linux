@@ -481,7 +481,6 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
 		return -ENOMEM;
 
 	for (i = 0; i < ARRAY_SIZE(fw_path); i++) {
-		pr_err("%s: fw_path[%d](%s)\n", __func__, i, fw_path[i]);
 		/* skip the unset customized path */
 		if (!fw_path[i][0])
 			continue;
@@ -493,22 +492,20 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
 			break;
 		}
 
-		pr_err("%s: path(%s)\n", __func__, path);
-
 		fw_priv->size = 0;
 		rc = kernel_read_file_from_path(path, &buffer, &size,
 						msize, id);
 		if (rc) {
 			if (rc != -ENOENT)
-				dev_err(device, "loading %s failed with error %d\n",
+				dev_warn(device, "loading %s failed with error %d\n",
 					 path, rc);
 			else
-				dev_err(device, "loading %s failed for no such file or directory.\n",
+				dev_dbg(device, "loading %s failed for no such file or directory.\n",
 					 path);
 			continue;
 		}
 		if (decompress) {
-			dev_err(device, "f/w decompressing %s\n",
+			dev_dbg(device, "f/w decompressing %s\n",
 				fw_priv->fw_name);
 			rc = decompress(device, fw_priv, size, buffer);
 			/* discard the superfluous original content */
