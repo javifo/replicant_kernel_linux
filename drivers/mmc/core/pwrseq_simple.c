@@ -38,13 +38,17 @@ static void mmc_pwrseq_simple_set_gpios_value(struct mmc_pwrseq_simple *pwrseq,
 {
 	struct gpio_descs *reset_gpios = pwrseq->reset_gpios;
 
+	pr_err("%s: E\n", __func__);
 	if (!IS_ERR(reset_gpios)) {
 		unsigned long *values;
 		int nvalues = reset_gpios->ndescs;
 
+		pr_err("%s: nvalues(%d)\n", __func__, nvalues);
 		values = bitmap_alloc(nvalues, GFP_KERNEL);
-		if (!values)
+		if (!values) {
+			pr_err("%s: bitmap_alloc error return\n", __func__);
 			return;
+		}
 
 		if (value)
 			bitmap_fill(values, nvalues);
@@ -54,6 +58,8 @@ static void mmc_pwrseq_simple_set_gpios_value(struct mmc_pwrseq_simple *pwrseq,
 		gpiod_set_array_value_cansleep(nvalues, reset_gpios->desc,
 					       reset_gpios->info, values);
 
+		pr_err("%s: X\n", __func__);
+
 		kfree(values);
 	}
 }
@@ -62,7 +68,9 @@ static void mmc_pwrseq_simple_pre_power_on(struct mmc_host *host)
 {
 	struct mmc_pwrseq_simple *pwrseq = to_pwrseq_simple(host->pwrseq);
 
+	pr_err("%s:\n", __func__);
 	if (!IS_ERR(pwrseq->ext_clk) && !pwrseq->clk_enabled) {
+		pr_err("%s: calling clk_prepare_enable()\n", __func__);
 		clk_prepare_enable(pwrseq->ext_clk);
 		pwrseq->clk_enabled = true;
 	}
@@ -74,6 +82,7 @@ static void mmc_pwrseq_simple_post_power_on(struct mmc_host *host)
 {
 	struct mmc_pwrseq_simple *pwrseq = to_pwrseq_simple(host->pwrseq);
 
+	pr_err("%s:\n", __func__);
 	mmc_pwrseq_simple_set_gpios_value(pwrseq, 0);
 
 	if (pwrseq->post_power_on_delay_ms)
@@ -86,11 +95,14 @@ static void mmc_pwrseq_simple_power_off(struct mmc_host *host)
 
 	mmc_pwrseq_simple_set_gpios_value(pwrseq, 1);
 
+	pr_err("%s:\n", __func__);
+
 	if (pwrseq->power_off_delay_us)
 		usleep_range(pwrseq->power_off_delay_us,
 			2 * pwrseq->power_off_delay_us);
 
 	if (!IS_ERR(pwrseq->ext_clk) && pwrseq->clk_enabled) {
+		pr_err("%s: calling clk_disable_unprepare()\n", __func__);
 		clk_disable_unprepare(pwrseq->ext_clk);
 		pwrseq->clk_enabled = false;
 	}
@@ -113,19 +125,23 @@ static int mmc_pwrseq_simple_probe(struct platform_device *pdev)
 	struct mmc_pwrseq_simple *pwrseq;
 	struct device *dev = &pdev->dev;
 
+	pr_err("%s:\n", __func__);
 	pwrseq = devm_kzalloc(dev, sizeof(*pwrseq), GFP_KERNEL);
 	if (!pwrseq)
 		return -ENOMEM;
 
 	pwrseq->ext_clk = devm_clk_get(dev, "ext_clock");
-	if (IS_ERR(pwrseq->ext_clk) && PTR_ERR(pwrseq->ext_clk) != -ENOENT)
+	if (IS_ERR(pwrseq->ext_clk) && PTR_ERR(pwrseq->ext_clk) != -ENOENT) {
+		pr_err("%s: ext_clock not found\n", __func__);
 		return PTR_ERR(pwrseq->ext_clk);
+	}
 
 	pwrseq->reset_gpios = devm_gpiod_get_array(dev, "reset",
 							GPIOD_OUT_HIGH);
 	if (IS_ERR(pwrseq->reset_gpios) &&
 	    PTR_ERR(pwrseq->reset_gpios) != -ENOENT &&
 	    PTR_ERR(pwrseq->reset_gpios) != -ENOSYS) {
+		pr_err("%s: reset_gpios not found\n", __func__);
 		return PTR_ERR(pwrseq->reset_gpios);
 	}
 
