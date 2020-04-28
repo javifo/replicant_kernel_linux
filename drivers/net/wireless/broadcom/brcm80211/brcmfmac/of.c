@@ -31,9 +31,13 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
 		of_node_put(root);
 	}
 
+	brcmf_info("%p, %s, %s\n", np, (bus_type == BRCMF_BUSTYPE_SDIO)?"bus_type is SDIO":"bus_type is not SDIO", (of_device_is_compatible(np, "brcm,bcm4329-fmac"))?"device is compatible":"device is not compatible");
+
 	if (!np || bus_type != BRCMF_BUSTYPE_SDIO ||
-	    !of_device_is_compatible(np, "brcm,bcm4329-fmac"))
+	    !of_device_is_compatible(np, "brcm,bcm4329-fmac")) {
+		brcmf_info("return\n");
 		return;
+	}
 
 	if (of_property_read_u32(np, "brcm,drive-strength", &val) == 0)
 		sdio->drive_strength = val;
@@ -43,8 +47,10 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
 		settings->clk = NULL;
 
 	/* make sure there are interrupts defined in the node */
-	if (!of_find_property(np, "interrupts", NULL))
+	if (!of_find_property(np, "interrupts", NULL)) {
+		brcmf_info("No interrupts found, return\n");
 		return;
+	}
 
 	irq = irq_of_parse_and_map(np, 0);
 	if (!irq) {
@@ -56,4 +62,6 @@ void brcmf_of_probe(struct device *dev, enum brcmf_bus_type bus_type,
 	sdio->oob_irq_supported = true;
 	sdio->oob_irq_nr = irq;
 	sdio->oob_irq_flags = irqf;
+
+	brcmf_info("oob_irq_nr(%d)\n", irq);
 }

@@ -404,6 +404,7 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
 
 	brcmf_dbg(INFO, "Enter, bus=%d, chip=%d, rev=%d\n", bus_type, chip,
 		  chiprev);
+	brcmf_info("Enter, bus=%d, chip=%d, rev=%d\n", bus_type, chip, chiprev);
 	settings = kzalloc(sizeof(*settings), GFP_ATOMIC);
 	if (!settings)
 		return NULL;
@@ -431,6 +432,7 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
 			    ((device_pd->rev == chiprev) ||
 			     (device_pd->rev == -1))) {
 				brcmf_dbg(INFO, "Platform data for device found\n");
+				brcmf_info("Platform data for device found\n");
 				settings->country_codes =
 						device_pd->country_codes;
 				if (device_pd->bus_type == BRCMF_BUSTYPE_SDIO)
@@ -444,6 +446,7 @@ struct brcmf_mp_device *brcmf_get_module_param(struct device *dev,
 	}
 	if (!found) {
 		/* No platform data for this device, try OF and DMI data */
+		brcmf_info("No platform data for this device, try OF and DMI data\n");
 		brcmf_dmi_probe(settings, chip, chiprev);
 		brcmf_of_probe(dev, bus_type, settings);
 	}

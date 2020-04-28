@@ -613,11 +613,13 @@ static int brcmf_fw_request_firmware(const struct firmware **fw,
 		strlcat(alt_path, fwctx->req->board_type, BRCMF_FW_NAME_LEN);
 		strlcat(alt_path, ".txt", BRCMF_FW_NAME_LEN);
 
+		brcmf_info("%s: NVRAM request_firmware(%s)\n", __func__, alt_path);
 		ret = request_firmware(fw, alt_path, fwctx->dev);
 		if (ret == 0)
 			return ret;
 	}
 
+	brcmf_info("%s: request_firmware(%s)\n", __func__, cur->path);
 	return request_firmware(fw, cur->path, fwctx->dev);
 }
 

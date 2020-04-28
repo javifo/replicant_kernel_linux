@@ -4283,6 +4283,8 @@ brcmf_sdio_prepare_fw_request(struct brcmf_sdio *bus)
 		{ ".txt", bus->sdiodev->nvram_name },
 	};
 
+	brcmf_info("%s: fw_name(%s) nvram_name(%s)\n", __func__, bus->sdiodev->fw_name, bus->sdiodev->nvram_name);
+
 	fwreq = brcmf_fw_alloc_request(bus->ci->chip, bus->ci->chiprev,
 				       brcmf_sdio_fwnames,
 				       ARRAY_SIZE(brcmf_sdio_fwnames),
@@ -4293,6 +4295,8 @@ brcmf_sdio_prepare_fw_request(struct brcmf_sdio *bus)
 	fwreq->items[BRCMF_SDIO_FW_CODE].type = BRCMF_FW_TYPE_BINARY;
 	fwreq->items[BRCMF_SDIO_FW_NVRAM].type = BRCMF_FW_TYPE_NVRAM;
 	fwreq->board_type = bus->sdiodev->settings->board_type;
+
+	brcmf_info("%s: code_path(%s) nvram_path(%s)\n", __func__, fwreq->items[BRCMF_SDIO_FW_CODE].path, fwreq->items[BRCMF_SDIO_FW_NVRAM].path);
 
 	return fwreq;
 }
