@@ -96,7 +96,6 @@ static const struct exynos_wkup_irq exynos5250_wkup_irq[] = {
 
 static u32 exynos_read_eint_wakeup_mask(void)
 {
-	pr_err("%s:\n", __func__);
 	return pmu_raw_readl(EXYNOS_EINT_WAKEUP_MASK);
 }
 
@@ -104,12 +103,8 @@ static int exynos_irq_set_wake(struct irq_data *data, unsigned int state)
 {
 	const struct exynos_wkup_irq *wkup_irq;
 
-	pr_err("%s:\n", __func__);
-
-	if (!pm_data->wkup_irq) {
-		pr_err("%s: ENOENT\n", __func__);
+	if (!pm_data->wkup_irq)
 		return -ENOENT;
-	}
 	wkup_irq = pm_data->wkup_irq;
 
 	while (wkup_irq->mask) {
@@ -143,7 +138,6 @@ static int exynos_pmu_domain_translate(struct irq_domain *d,
 				       unsigned long *hwirq,
 				       unsigned int *type)
 {
-	pr_err("%s:\n", __func__);
 	if (is_of_node(fwspec->fwnode)) {
 		if (fwspec->param_count != 3)
 			return -EINVAL;
@@ -169,7 +163,6 @@ static int exynos_pmu_domain_alloc(struct irq_domain *domain,
 	irq_hw_number_t hwirq;
 	int i;
 
-	pr_err("%s:\n", __func__);
 	if (fwspec->param_count != 3)
 		return -EINVAL;	/* Not GIC compliant */
 	if (fwspec->param[0] != 0)
@@ -198,7 +191,6 @@ static int __init exynos_pmu_irq_init(struct device_node *node,
 {
 	struct irq_domain *parent_domain, *domain;
 
-	pr_err("%s:\n", __func__);
 	if (!parent) {
 		pr_err("%pOF: no parent, giving up\n", node);
 		return -ENODEV;
@@ -231,7 +223,6 @@ static int __init exynos_pmu_irq_init(struct device_node *node,
 	 * later the Exynos PMU platform device won't be skipped.
 	 */
 	of_node_clear_flag(node, OF_POPULATED);
-	pr_err("%s:exit\n", __func__);
 
 	return 0;
 }
@@ -247,7 +238,6 @@ EXYNOS_PMU_IRQ(exynos5420_pmu_irq, "samsung,exynos5420-pmu");
 static int exynos_cpu_do_idle(void)
 {
 	/* issue the standby signal into the pm unit. */
-	pr_err("%s:\n", __func__);
 	cpu_do_idle();
 
 	pr_info("Failed to suspend the system\n");
@@ -255,28 +245,24 @@ static int exynos_cpu_do_idle(void)
 }
 static void exynos_flush_cache_all(void)
 {
-	pr_err("%s:\n", __func__);
 	flush_cache_all();
 	outer_flush_all();
 }
 
 static int exynos_cpu_suspend(unsigned long arg)
 {
-	pr_err("%s:\n", __func__);
 	exynos_flush_cache_all();
 	return exynos_cpu_do_idle();
 }
 
 static int exynos3250_cpu_suspend(unsigned long arg)
 {
-	pr_err("%s:\n", __func__);
 	flush_cache_all();
 	return exynos_cpu_do_idle();
 }
 
 static int exynos5420_cpu_suspend(unsigned long arg)
 {
-	pr_err("%s:\n", __func__);
 	/* MCPM works with HW CPU identifiers */
 	unsigned int mpidr = read_cpuid_mpidr();
 	unsigned int cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
@@ -299,21 +285,18 @@ static void exynos_pm_set_wakeup_mask(void)
 	 * Set wake-up mask registers
 	 * EXYNOS_EINT_WAKEUP_MASK is set by pinctrl driver in late suspend.
 	 */
-	pr_err("%s:\n", __func__);
 	pmu_raw_writel(exynos_irqwake_intmask & ~BIT(31), S5P_WAKEUP_MASK);
 }
 
 static void exynos_pm_enter_sleep_mode(void)
 {
 	/* Set value of power down register for sleep mode */
-	pr_err("%s:\n", __func__);
 	exynos_sys_powerdown_conf(SYS_SLEEP);
 	pmu_raw_writel(EXYNOS_SLEEP_MAGIC, S5P_INFORM1);
 }
 
 static void exynos_pm_prepare(void)
 {
-	pr_err("%s:\n", __func__);
 	exynos_set_delayed_reset_assertion(false);
 
 	/* Set wake-up mask registers */
@@ -329,7 +312,6 @@ static void exynos3250_pm_prepare(void)
 {
 	unsigned int tmp;
 
-	pr_err("%s:\n", __func__);
 	/* Set wake-up mask registers */
 	exynos_pm_set_wakeup_mask();
 
@@ -347,7 +329,6 @@ static void exynos5420_pm_prepare(void)
 {
 	unsigned int tmp;
 
-	pr_err("%s:\n", __func__);
 	/* Set wake-up mask registers */
 	exynos_pm_set_wakeup_mask();
 
@@ -397,7 +378,6 @@ static void exynos5420_pm_prepare(void)
 
 static int exynos_pm_suspend(void)
 {
-	pr_err("%s:\n", __func__);
 	exynos_pm_central_suspend();
 
 	/* Setting SEQ_OPTION register */
@@ -414,7 +394,6 @@ static int exynos5420_pm_suspend(void)
 {
 	u32 this_cluster;
 
-	pr_err("%s:\n", __func__);
 	exynos_pm_central_suspend();
 
 	/* Setting SEQ_OPTION register */
@@ -431,7 +410,6 @@ static int exynos5420_pm_suspend(void)
 
 static void exynos_pm_resume(void)
 {
-	pr_err("%s:\n", __func__);
 	u32 cpuid = read_cpuid_part();
 
 	if (exynos_pm_central_resume())
@@ -453,7 +431,6 @@ early_wakeup:
 
 static void exynos3250_pm_resume(void)
 {
-	pr_err("%s:\n", __func__);
 	u32 cpuid = read_cpuid_part();
 
 	if (exynos_pm_central_resume())
@@ -475,7 +452,6 @@ static void exynos5420_prepare_pm_resume(void)
 {
 	unsigned int mpidr, cluster;
 
-	pr_err("%s:\n", __func__);
 	mpidr = read_cpuid_mpidr();
 	cluster = MPIDR_AFFINITY_LEVEL(mpidr, 1);
 
@@ -501,7 +477,6 @@ static void exynos5420_pm_resume(void)
 {
 	unsigned long tmp;
 
-	pr_err("%s:\n", __func__);
 	/* Restore the CPU0 low power state register */
 	tmp = pmu_raw_readl(EXYNOS5_ARM_CORE0_SYS_PWR_REG);
 	pmu_raw_writel(tmp | S5P_CORE_LOCAL_PWR_EN,
@@ -548,13 +523,12 @@ early_wakeup:
 
 static int exynos_suspend_enter(suspend_state_t state)
 {
-	pr_err("%s:\n", __func__);
 	u32 eint_wakeup_mask = exynos_read_eint_wakeup_mask();
 	int ret;
 
-	pr_err("%s: suspending the system...\n", __func__);
+	pr_debug("%s: suspending the system...\n", __func__);
 
-	pr_err("%s: wakeup masks: %08x,%08x\n", __func__,
+	pr_debug("%s: wakeup masks: %08x,%08x\n", __func__,
 		  exynos_irqwake_intmask, eint_wakeup_mask);
 
 	if (exynos_irqwake_intmask == -1U
@@ -577,10 +551,10 @@ static int exynos_suspend_enter(suspend_state_t state)
 	if (pm_data->pm_resume_prepare)
 		pm_data->pm_resume_prepare();
 
-	pr_err("%s: wakeup stat: %08x\n", __func__,
+	pr_debug("%s: wakeup stat: %08x\n", __func__,
 			pmu_raw_readl(S5P_WAKEUP_STAT));
 
-	pr_err("%s: resuming the system...\n", __func__);
+	pr_debug("%s: resuming the system...\n", __func__);
 
 	return 0;
 }
@@ -589,7 +563,6 @@ static int exynos_suspend_prepare(void)
 {
 	int ret;
 
-	pr_err("%s:\n", __func__);
 	/*
 	 * REVISIT: It would be better if struct platform_suspend_ops
 	 * .prepare handler get the suspend_state_t as a parameter to
@@ -611,7 +584,6 @@ static void exynos_suspend_finish(void)
 {
 	int ret;
 
-	pr_err("%s:\n", __func__);
 	ret = regulator_suspend_finish();
 	if (ret)
 		pr_warn("Failed to resume regulators from suspend (%d)\n", ret);
@@ -689,7 +661,6 @@ void __init exynos_pm_init(void)
 	struct device_node *np;
 	u32 tmp;
 
-	pr_err("%s:\n", __func__);
 	np = of_find_matching_node_and_match(NULL, exynos_pmu_of_device_ids, &match);
 	if (!np) {
 		pr_err("Failed to find PMU node\n");

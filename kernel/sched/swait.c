@@ -23,17 +23,12 @@ void swake_up_locked(struct swait_queue_head *q)
 {
 	struct swait_queue *curr;
 
-	pr_err("%s:\n", __func__);
-	if (list_empty(&q->task_list)) {
-		pr_err("%s: task_list empty exiting\n", __func__);
+	if (list_empty(&q->task_list))
 		return;
-	}
 
 	curr = list_first_entry(&q->task_list, typeof(*curr), task_list);
-	pr_err("%s: calling wake_up_process()\n", __func__);
 	wake_up_process(curr->task);
 	list_del_init(&curr->task_list);
-	pr_err("%s:out\n", __func__);
 }
 EXPORT_SYMBOL(swake_up_locked);
 
@@ -41,11 +36,9 @@ void swake_up_one(struct swait_queue_head *q)
 {
 	unsigned long flags;
 
-	pr_err("%s:\n", __func__);
 	raw_spin_lock_irqsave(&q->lock, flags);
 	swake_up_locked(q);
 	raw_spin_unlock_irqrestore(&q->lock, flags);
-	pr_err("%s:out\n", __func__);
 }
 EXPORT_SYMBOL(swake_up_one);
 

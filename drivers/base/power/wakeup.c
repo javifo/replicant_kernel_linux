@@ -536,22 +536,16 @@ static void wakeup_source_activate(struct wakeup_source *ws)
  */
 static void wakeup_source_report_event(struct wakeup_source *ws, bool hard)
 {
-	pr_err("%s: event_count(%d) wakeup_count(%d) hard(%d)\n", __func__, ws->event_count, ws->wakeup_count, hard);
-
 	ws->event_count++;
 	/* This is racy, but the counter is approximate anyway. */
 	if (events_check_enabled)
 		ws->wakeup_count++;
 
-	if (!ws->active) {
-		pr_err("%s: calling wakeup_source_activate(()\n", __func__);
+	if (!ws->active)
 		wakeup_source_activate(ws);
-	}
 
-	if (hard) {
-		pr_err("%s: calling pm_system_wakeup()\n", __func__);
+	if (hard)
 		pm_system_wakeup();
-	}
 }
 
 /**
@@ -564,23 +558,16 @@ void __pm_stay_awake(struct wakeup_source *ws)
 {
 	unsigned long flags;
 
-	pr_err("%s:\n", __func__);
-
-	if (!ws) {
-		pr_err("%s: No ws return\n", __func__);
+	if (!ws)
 		return;
-	}
 
 	spin_lock_irqsave(&ws->lock, flags);
 
-	pr_err("%s: calling wakeup_source_report_event()\n", __func__);
 	wakeup_source_report_event(ws, false);
 	del_timer(&ws->timer);
 	ws->timer_expires = 0;
 
 	spin_unlock_irqrestore(&ws->lock, flags);
-
-	pr_err("%s: out\n", __func__);
 }
 EXPORT_SYMBOL_GPL(__pm_stay_awake);
 
@@ -599,17 +586,12 @@ void pm_stay_awake(struct device *dev)
 {
 	unsigned long flags;
 
-	pr_err("%s:\n", __func__);
-	if (!dev) {
-		pr_err("%s: No dev return!\n", __func__);
+	if (!dev)
 		return;
-	}
 
 	spin_lock_irqsave(&dev->power.lock, flags);
-	pr_err("%s: after spin_lock\n", __func__);
 	__pm_stay_awake(dev->power.wakeup);
 	spin_unlock_irqrestore(&dev->power.lock, flags);
-	pr_err("%s: out\n", __func__);
 }
 EXPORT_SYMBOL_GPL(pm_stay_awake);
 
@@ -870,7 +852,6 @@ bool pm_wakeup_pending(void)
 
 void pm_system_wakeup(void)
 {
-	pr_err("%s:\n", __func__);
 	atomic_inc(&pm_abort_suspend);
 	s2idle_wake();
 }

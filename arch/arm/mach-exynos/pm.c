@@ -26,7 +26,6 @@
 
 static inline void __iomem *exynos_boot_vector_addr(void)
 {
-	pr_err("%s: \n", __func__);
 	if (samsung_rev() == EXYNOS4210_REV_1_1)
 		return pmu_base_addr + S5P_INFORM7;
 	else if (samsung_rev() == EXYNOS4210_REV_1_0)
@@ -36,7 +35,6 @@ static inline void __iomem *exynos_boot_vector_addr(void)
 
 static inline void __iomem *exynos_boot_vector_flag(void)
 {
-	pr_err("%s: \n", __func__);
 	if (samsung_rev() == EXYNOS4210_REV_1_1)
 		return pmu_base_addr + S5P_INFORM6;
 	else if (samsung_rev() == EXYNOS4210_REV_1_0)
@@ -53,7 +51,6 @@ void exynos_cpu_save_register(void)
 {
 	unsigned long tmp;
 
-	pr_err("%s: \n", __func__);
 	/* Save Power control register */
 	asm ("mrc p15, 0, %0, c15, c0, 0"
 	     : "=r" (tmp) : : "cc");
@@ -71,7 +68,6 @@ void exynos_cpu_restore_register(void)
 {
 	unsigned long tmp;
 
-	pr_err("%s: \n", __func__);
 	/* Restore Power control register */
 	tmp = save_arm_register[0];
 
@@ -91,7 +87,6 @@ void exynos_pm_central_suspend(void)
 {
 	unsigned long tmp;
 
-	pr_err("%s: \n", __func__);
 	/* Setting Central Sequence Register for power down mode */
 	tmp = pmu_raw_readl(S5P_CENTRAL_SEQ_CONFIGURATION);
 	tmp &= ~S5P_CENTRAL_LOWPWR_CFG;
@@ -102,7 +97,6 @@ int exynos_pm_central_resume(void)
 {
 	unsigned long tmp;
 
-	pr_err("%s: \n", __func__);
 	/*
 	 * If PMU failed while entering sleep mode, WFI will be
 	 * ignored by PMU and then exiting cpu_do_idle().
@@ -125,7 +119,6 @@ int exynos_pm_central_resume(void)
 /* Ext-GIC nIRQ/nFIQ is the only wakeup source in AFTR */
 static void exynos_set_wakeupmask(long mask)
 {
-	pr_err("%s: \n", __func__);
 	pmu_raw_writel(mask, S5P_WAKEUP_MASK);
 	if (soc_is_exynos3250())
 		pmu_raw_writel(0x0, S5P_WAKEUP_MASK2);
@@ -133,7 +126,6 @@ static void exynos_set_wakeupmask(long mask)
 
 static void exynos_cpu_set_boot_vector(long flags)
 {
-	pr_err("%s: \n", __func__);
 	writel_relaxed(__pa_symbol(exynos_cpu_resume),
 		       exynos_boot_vector_addr());
 	writel_relaxed(flags, exynos_boot_vector_flag());
@@ -143,7 +135,6 @@ static int exynos_aftr_finisher(unsigned long flags)
 {
 	int ret;
 
-	pr_err("%s: \n", __func__);
 	exynos_set_wakeupmask(soc_is_exynos3250() ? 0x40003ffe : 0x0000ff3e);
 	/* Set value of power down register for aftr mode */
 	exynos_sys_powerdown_conf(SYS_AFTR);
@@ -163,7 +154,6 @@ void exynos_enter_aftr(void)
 {
 	unsigned int cpuid = smp_processor_id();
 
-	pr_err("%s: \n", __func__);
 	cpu_pm_enter();
 
 	if (soc_is_exynos3250())
@@ -200,7 +190,6 @@ static int exynos_cpu0_enter_aftr(void)
 {
 	int ret = -1;
 
-	pr_err("%s: \n", __func__);
 	/*
 	 * If the other cpu is powered on, we have to power it off, because
 	 * the AFTR state won't work otherwise
@@ -289,7 +278,6 @@ fail:
 
 static int exynos_wfi_finisher(unsigned long flags)
 {
-	pr_err("%s: \n", __func__);
 	if (soc_is_exynos3250())
 		flush_cache_all();
 	cpu_do_idle();
@@ -301,7 +289,6 @@ static int exynos_cpu1_powerdown(void)
 {
 	int ret = -1;
 
-	pr_err("%s: \n", __func__);
 	/*
 	 * Idle sequence for cpu1
 	 */

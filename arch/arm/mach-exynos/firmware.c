@@ -24,7 +24,6 @@
 
 static void exynos_save_cp15(void)
 {
-	pr_err("%s: \n", __func__);
 	/* Save Power control and Diagnostic registers */
 	asm ("mrc p15, 0, %0, c15, c0, 0\n"
 	     "mrc p15, 0, %1, c15, c0, 1\n"
@@ -34,7 +33,6 @@ static void exynos_save_cp15(void)
 
 static int exynos_do_idle(unsigned long mode)
 {
-	pr_err("%s: \n", __func__);
 	switch (mode) {
 	case FW_DO_IDLE_AFTR:
 		if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A9)
@@ -59,7 +57,6 @@ static int exynos_do_idle(unsigned long mode)
 
 static int exynos_cpu_boot(int cpu)
 {
-	pr_err("%s: \n", __func__);
 	/*
 	 * Exynos3250 doesn't need to send smc command for secondary CPU boot
 	 * because Exynos3250 removes WFE in secure mode.
@@ -78,7 +75,6 @@ static int exynos_set_cpu_boot_addr(int cpu, unsigned long boot_addr)
 {
 	void __iomem *boot_reg;
 
-	pr_err("%s: \n", __func__);
 	if (!sysram_ns_base_addr)
 		return -ENODEV;
 
@@ -100,7 +96,6 @@ static int exynos_get_cpu_boot_addr(int cpu, unsigned long *boot_addr)
 {
 	void __iomem *boot_reg;
 
-	pr_err("%s: \n", __func__);
 	if (!sysram_ns_base_addr)
 		return -ENODEV;
 
@@ -115,7 +110,6 @@ static int exynos_get_cpu_boot_addr(int cpu, unsigned long *boot_addr)
 
 static int exynos_cpu_suspend(unsigned long arg)
 {
-	pr_err("%s: \n", __func__);
 	flush_cache_all();
 	outer_flush_all();
 
@@ -128,7 +122,6 @@ static int exynos_cpu_suspend(unsigned long arg)
 
 static int exynos_suspend(void)
 {
-	pr_err("%s: \n", __func__);
 	if (read_cpuid_part() == ARM_CPU_PART_CORTEX_A9)
 		exynos_save_cp15();
 
@@ -141,7 +134,6 @@ static int exynos_suspend(void)
 
 static int exynos_resume(void)
 {
-	pr_err("%s: \n", __func__);
 	writel(0, sysram_ns_base_addr + EXYNOS_BOOT_FLAG);
 
 	return 0;
@@ -198,7 +190,6 @@ bool __init exynos_secure_firmware_available(void)
 	struct device_node *nd;
 	const __be32 *addr;
 
-	pr_err("%s: \n", __func__);
 	nd = of_find_compatible_node(NULL, NULL,
 					"samsung,secure-firmware");
 	if (!nd)
@@ -216,11 +207,9 @@ bool __init exynos_secure_firmware_available(void)
 
 void __init exynos_firmware_init(void)
 {
-	pr_err("%s: \n", __func__);
-	if (!exynos_secure_firmware_available()) {
-		pr_err("%s: No secure firmware available\n", __func__);
+	if (!exynos_secure_firmware_available())
 		return;
-	}
+
 	pr_info("Running under secure firmware.\n");
 
 	register_firmware_ops(&exynos_firmware_ops);
@@ -244,7 +233,6 @@ void __init exynos_firmware_init(void)
 void exynos_set_boot_flag(unsigned int cpu, unsigned int mode)
 {
 	unsigned int tmp;
-	pr_err("%s: \n", __func__);
 
 	tmp = readl_relaxed(REG_CPU_STATE_ADDR + cpu * 4);
 
@@ -259,7 +247,6 @@ void exynos_clear_boot_flag(unsigned int cpu, unsigned int mode)
 {
 	unsigned int tmp;
 
-	pr_err("%s: \n", __func__);
 	tmp = readl_relaxed(REG_CPU_STATE_ADDR + cpu * 4);
 	tmp &= ~mode;
 	writel_relaxed(tmp, REG_CPU_STATE_ADDR + cpu * 4);
