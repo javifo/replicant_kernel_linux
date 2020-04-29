@@ -1037,7 +1037,7 @@
 };
 
 &pmu_system_controller {
-	compatible = "samsung,exynos4210-pmu", "syscon", "simple-mfd";
+	compatible = "samsung,exynos4412-pmu", "syscon", "simple-mfd";
 	assigned-clocks = <&pmu_system_controller 0>;
 	assigned-clock-parents =  <&clock CLK_XUSBXTI>;
 
