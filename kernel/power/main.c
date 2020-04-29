@@ -516,8 +516,6 @@ static ssize_t state_store(struct kobject *kobj, struct kobj_attribute *attr,
 	suspend_state_t state;
 	int error;
 
-	pr_err("%s: \n", __func__);
-
 	error = pm_autosleep_lock();
 	if (error)
 		return error;
@@ -532,10 +530,8 @@ static ssize_t state_store(struct kobject *kobj, struct kobj_attribute *attr,
 		if (state == PM_SUSPEND_MEM)
 			state = mem_sleep_current;
 
-		pr_err("%s: calling pm_suspend(state)\n", __func__);
 		error = pm_suspend(state);
 	} else if (state == PM_SUSPEND_MAX) {
-		pr_err("%s: calling hibernate()\n", __func__);
 		error = hibernate();
 	} else {
 		error = -EINVAL;

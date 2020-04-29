@@ -620,12 +620,10 @@ int hibernation_platform_enter(void)
  */
 static void power_down(void)
 {
-	pr_err("%s:\n", __func__);
 #ifdef CONFIG_SUSPEND
 	int error;
 
 	if (hibernation_mode == HIBERNATION_SUSPEND) {
-		pr_err("%s: PM_SUSPEND_MEM\n", __func__);
 		error = suspend_devices_and_enter(PM_SUSPEND_MEM);
 		if (error) {
 			hibernation_mode = hibernation_ops ?

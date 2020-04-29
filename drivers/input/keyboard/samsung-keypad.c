@@ -124,7 +124,8 @@ static bool samsung_keypad_report(struct samsung_keypad *keypad,
 
 			pressed = row_state[col] & (1 << row);
 
-			pr_err("%s: key %s, row: %d, col: %d\n", __func__,
+			dev_dbg(&keypad->input_dev->dev,
+				"key %s, row: %d, col: %d\n",
 				pressed ? "pressed" : "released", row, col);
 
 			val = MATRIX_SCAN_CODE(row, col, keypad->row_shift);
